@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import random
+import sys
 import time
 from collections import defaultdict
 from datetime import timedelta
@@ -131,6 +132,7 @@ def main(
     swap_type: str | None = None,
     save_dir: str | None = None,
 ):
+    cmd = " ".join(sys.argv)
     if save_dir is None:
         save_dir = (
             f"experiments/dit/invert/swap_{swap_type}_before{swap_before_t}/"
@@ -159,6 +161,7 @@ def main(
         logging.info(f"Swap type: {swap_type}")
         logging.info(f"With reconstruction: {with_reconstruction}")
         logging.info(f"Internal: {internal}")
+        logging.info(f"Command: {cmd}")
     set_seed(seed)
 
     disable_progress_bar()
@@ -260,7 +263,7 @@ def main(
         metrics["_params"]["with_reconstruction"] = with_reconstruction
         metrics["_params"]["internal"] = internal
         metrics["_params"]["save_dir"] = save_dir
-
+        metrics["_params"]["cmd"] = cmd
         metrics["metrics"] = {}
         metrics["metrics"]["correlation"] = get_top_k_corr_in_patches(latents, top_k=20)
         metrics["metrics"]["latent_stats"] = stats_from_tensor(latents)

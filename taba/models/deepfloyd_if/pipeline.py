@@ -12,11 +12,7 @@ from diffusers.utils.logging import disable_progress_bar, enable_progress_bar, g
 from diffusers.utils.torch_utils import randn_tensor
 from transformers import CLIPImageProcessor, T5EncoderModel, T5Tokenizer
 
-from taba.ddim.schedulers import (
-    AdvancedDDIMInverseScheduler,
-    AdvancedDDIMScheduler,
-    AdvancedDDIMSchedulerOutput,
-)
+from taba.ddim.schedulers import AdvancedDDIMInverseScheduler, AdvancedDDIMScheduler, AdvancedDDIMSchedulerOutput
 
 IF_MODEL_NAME = "DeepFloyd/IF-I-XL-v1.0"
 IF_MODEL_DTYPE = torch.float16
@@ -102,6 +98,7 @@ class CustomIFPipeline(IFPipeline):
         swap_xt: dict[int, torch.Tensor] = {},
         edit_prompt: Optional[Union[str, List[str]]] = None,
         edit_t_start: Optional[int] = None,
+        start_from_intermediate_xt: int | None = None,
     ):
         assert swap_xt == {} and swap_eps == {}, "swap_xt and swap_eps cannot both be provided"
         self.scheduler = self.sampling_scheduler  # type: ignore
@@ -131,6 +128,7 @@ class CustomIFPipeline(IFPipeline):
             swap_xt=swap_xt,
             edit_prompt=edit_prompt,
             edit_t_start=edit_t_start,
+            start_from_intermediate_xt=start_from_intermediate_xt,
         )
 
     @torch.no_grad()
@@ -223,6 +221,7 @@ class CustomIFPipeline(IFPipeline):
         fixed_noise_generator: torch.Generator | None = None,
         forward_before_t: int | None = None,
         is_first_batch: bool = False,
+        start_from_intermediate_xt: int | None = None,
     ):
         """
         Function invoked when calling the pipeline for generation.
@@ -372,6 +371,15 @@ class CustomIFPipeline(IFPipeline):
         if hasattr(self.scheduler, "set_begin_index"):
             self.scheduler.set_begin_index(0)
         progress_bar_steps = num_inference_steps
+
+        if start_from_intermediate_xt is not None:
+            assert is_inversion is False, "start_from_intermediate_xt can only be used when is_inversion is False"
+            assert (
+                1 <= start_from_intermediate_xt <= num_inference_steps
+            ), f"start_from_intermediate_xt must be between 1 and {num_inference_steps=}"
+            timesteps = timesteps[-start_from_intermediate_xt:]
+            num_inference_steps = start_from_intermediate_xt
+            progress_bar_steps = start_from_intermediate_xt
 
         # latents
         if latents is None:

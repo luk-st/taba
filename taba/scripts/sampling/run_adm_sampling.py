@@ -2,6 +2,7 @@ import argparse
 import json
 import logging
 import os
+import sys
 import time
 from collections import defaultdict
 from datetime import timedelta
@@ -132,6 +133,7 @@ def main(
     part_idx: int = 0,
     save_dir: str | None = None,
 ):
+    cmd = " ".join(sys.argv)
     if with_reconstruction is True and with_inversion is False:
         raise ValueError("Reconstruction cannot be done without inversion")
 
@@ -167,6 +169,7 @@ def main(
         logging.info(f"N samples: {n_samples}")
         logging.info(f"N parts: {n_parts}")
         logging.info(f"Part idx: {part_idx}")
+        logging.info(f"Command: {cmd}")
     set_seed(seed)
 
     if input_noise_path is not None and os.path.exists(input_noise_path):
@@ -191,7 +194,9 @@ def main(
         n_per_part = n_samples // n_parts
         noise = noise[part_idx * n_per_part : (part_idx + 1) * n_per_part]
         if sampling_outputs is not None:
-            sampling_outputs["samples"] = sampling_outputs["samples"][part_idx * n_per_part : (part_idx + 1) * n_per_part]
+            sampling_outputs["samples"] = sampling_outputs["samples"][
+                part_idx * n_per_part : (part_idx + 1) * n_per_part
+            ]
 
     if accelerator.is_main_process:
         logging.info(f"Noise shape: {noise.shape}")
@@ -258,6 +263,7 @@ def main(
         metrics["_params"]["n_parts"] = n_parts
         metrics["_params"]["part_idx"] = part_idx
         metrics["_params"]["model_name"] = model_name
+        metrics["_params"]["cmd"] = cmd
         metrics["metrics"] = {}
 
         if with_inversion:

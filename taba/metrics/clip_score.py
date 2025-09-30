@@ -114,6 +114,25 @@ def get_clip_score(model, images, candidates, device, w=2.5):
     per = w * np.clip(np.sum(images * candidates, axis=1), 0, None)
     return np.mean(per), per, candidates
 
+def get_clip_score_mean_std(model, images, candidates, device, w=2.5):
+    """
+    get standard image-text clipscore.
+    images can either be:
+    - a list of strings specifying filepaths for images
+    - a precomputed, ordered matrix of image features
+    """
+    if isinstance(images, list):
+        # need to extract image features
+        images = extract_all_images(images, model, device)
+
+    candidates = extract_all_captions(candidates, model, device)
+
+    images = images / np.sqrt(np.sum(images**2, axis=1, keepdims=True))
+    candidates = candidates / np.sqrt(np.sum(candidates**2, axis=1, keepdims=True))
+
+    per = w * np.clip(np.sum(images * candidates, axis=1), 0, None)
+    return np.mean(per), np.std(per)
+
 
 def get_imageonly_clip_score(model, images, images2, device, w=2.5):
     # if isinstance(images, list):

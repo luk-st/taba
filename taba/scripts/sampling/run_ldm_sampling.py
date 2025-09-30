@@ -2,6 +2,7 @@ import argparse
 import json
 import logging
 import os
+import sys
 import time
 from collections import defaultdict
 from datetime import timedelta
@@ -119,6 +120,7 @@ def main(
     part_idx: int = 0,
     save_dir: str | None = None,
 ):
+    cmd = " ".join(sys.argv)
     if with_reconstruction is True and with_inversion is False:
         raise ValueError("Reconstruction cannot be done without inversion")
 
@@ -138,7 +140,7 @@ def main(
             save_dir = save_dir + "_" + input_noise_path.split("/")[-1].split(".")[0]
 
     if n_parts > 1:
-        save_dir += f"_part_{part_idx}"
+        save_dir += f"_part{part_idx}"
 
     kwargs = InitProcessGroupKwargs(timeout=timedelta(seconds=1800 * 6))
     accelerator = Accelerator(kwargs_handlers=[kwargs])
@@ -155,6 +157,7 @@ def main(
         logging.info(f"N samples: {n_samples}")
         logging.info(f"N parts: {n_parts}")
         logging.info(f"Part idx: {part_idx}")
+        logging.info(f"Command: {cmd}")
     set_seed(seed)
 
     if input_noise_path is not None and os.path.exists(input_noise_path):
@@ -229,6 +232,7 @@ def main(
         metrics["_params"]["n_parts"] = n_parts
         metrics["_params"]["part_idx"] = part_idx
         metrics["_params"]["save_dir"] = save_dir
+        metrics["_params"]["cmd"] = cmd
         metrics["metrics"] = {}
         if with_inversion:
             metrics["metrics"]["kl_div_noise_latent"] = kl_div(noise, inversion_outputs["latents"])

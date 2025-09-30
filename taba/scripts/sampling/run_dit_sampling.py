@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import random
+import sys
 import time
 from collections import defaultdict
 from datetime import timedelta
@@ -13,14 +14,13 @@ import torch
 from accelerate import Accelerator
 from accelerate.utils import InitProcessGroupKwargs, gather_object
 from diffusers.training_utils import set_seed
+from diffusers.utils.logging import disable_progress_bar, enable_progress_bar
 
 from taba.metrics.angles_distances import reconstruction_error
 from taba.metrics.correlation import get_top_k_corr_in_patches
 from taba.metrics.normality import kl_div, stats_from_tensor
 from taba.models.dit.constants import DIT_IMAGENET_MAP
 from taba.models.dit.dit import CustomDiTPipeline
-from diffusers.utils.logging import disable_progress_bar, enable_progress_bar
-
 
 torch.backends.cuda.matmul.allow_tf32 = True
 torch._inductor.config.conv_1x1_as_mm = True  # type: ignore
@@ -123,6 +123,7 @@ def main(
     start_time: str = START_TIME,
     save_dir: str | None = None,
 ):
+    cmd = " ".join(sys.argv)
     INTERNAL_DIR = "internal/" if internal else ""
     if save_dir is None:
         save_dir = (
@@ -157,6 +158,7 @@ def main(
         logging.info(f"With reconstruction: {with_reconstruction}")
         logging.info(f"Internal: {internal}")
         logging.info(f"Input cond path: {input_cond_path}")
+        logging.info(f"Command: {cmd}")
     set_seed(seed)
 
     disable_progress_bar()
@@ -266,7 +268,7 @@ def main(
         metrics["_params"]["with_reconstruction"] = with_reconstruction
         metrics["_params"]["internal"] = internal
         metrics["_params"]["save_dir"] = save_dir
-
+        metrics["_params"]["cmd"] = cmd
         metrics["metrics"] = {}
 
         if with_inversion:

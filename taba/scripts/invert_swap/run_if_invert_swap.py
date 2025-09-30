@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import pickle
+import sys
 import time
 from collections import defaultdict
 from datetime import timedelta
@@ -193,6 +194,7 @@ def main(
     start_time: str = START_TIME,
     save_dir: str | None = None,
 ):
+    cmd = " ".join(sys.argv)
     if save_dir is None:
         save_dir = (
             f"experiments/deepfloyd_if/invert/swap_{swap_type}_before{swap_before_t}/"
@@ -222,6 +224,7 @@ def main(
         logging.info(f"Swap type: {swap_type}")
         logging.info(f"Internal: {internal}")
         logging.info(f"Start time: {start_time}")
+        logging.info(f"Command: {cmd}")
     set_seed(seed)
 
     disable_progress_bar()
@@ -244,7 +247,6 @@ def main(
         swaps_per_t = {idx: swap_tensor[-(idx + swap_per_t_inc)] for idx in range(swap_before_t)}
     else:
         swaps_per_t = {}
-
 
     if accelerator.is_main_process:
         logging.info(f"Number of prompts: {len(prompts)}")
@@ -303,7 +305,7 @@ def main(
         metrics["_params"]["input_prompts_path"] = input_prompts_path
         metrics["_params"]["internal"] = internal
         metrics["_params"]["with_reconstruction"] = with_reconstruction
-
+        metrics["_params"]["cmd"] = cmd
         metrics["metrics"] = {}
         latents = inversion_outputs["latents"]
         metrics["metrics"]["correlation"] = get_top_k_corr_in_patches(latents, top_k=20)

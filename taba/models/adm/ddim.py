@@ -100,12 +100,21 @@ def generate_latents(
     from_each_t=False,
     swap_eps={},
     swap_xt={},
+    forward_before_t: int | None = None,
+    fixed_noise_generator: torch.Generator | None = None,
 ):
     x = ddim_generations
     latents = []
     all_t_latents = []
     all_t_eps_samples = []
     all_t_pred_xstart_samples = []
+
+    apply_forward = False
+    assert (forward_before_t is None) or (0<= forward_before_t <= diffusion_pipeline.num_timesteps), "forward_before_t must be less than or equal to the number of timesteps when provided"
+    if forward_before_t is not None and forward_before_t > 0:
+        assert fixed_noise_generator is not None, "fixed_noise_generator must be provided if forward_before_t is provided"
+        assert from_each_t is False, "from_each_t not supported if forward_before_t is provided"
+        apply_forward=True
 
     for j in tqdm(range((x.shape[0] // batch_size)), desc="Generating latents from samples"):
         xj = x[j * batch_size : (j + 1) * batch_size]
@@ -123,7 +132,14 @@ def generate_latents(
         timesteps_eps_samples = []
         timesteps_pred_xstart_samples = []
 
-        for i in range(diffusion_pipeline.num_timesteps):
+        if apply_forward:
+            eps = torch.randn(size=xj.shape, generator=fixed_noise_generator, dtype=xj.dtype, device=xj.device)
+            t_batch = torch.tensor([forward_before_t] * batch_size, device=xj.device)
+            xj = diffusion_pipeline.q_sample(x_start=xj, t=t_batch, noise=eps)
+        else:
+            forward_before_t = 0
+
+        for i in range(forward_before_t, diffusion_pipeline.num_timesteps):
             with torch.no_grad():
                 xj = xj.to(device)
                 t = torch.tensor([i] * xj.shape[0], device=device)

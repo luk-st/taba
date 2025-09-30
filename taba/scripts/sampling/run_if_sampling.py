@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import pickle
+import sys
 import time
 from collections import defaultdict
 from datetime import timedelta
@@ -193,6 +194,7 @@ def main(
     start_time: str = START_TIME,
     save_dir: str | None = None,
 ):
+    cmd = " ".join(sys.argv)
     INTERNAL_DIR = "internal/" if internal else ""
     if save_dir is None:
         save_dir = (
@@ -230,6 +232,7 @@ def main(
         logging.info(f"Internal: {internal}")
         logging.info(f"Cond seed: {cond_seed}")
         logging.info(f"Start time: {start_time}")
+        logging.info(f"Command: {cmd}")
     accelerator.wait_for_everyone()
     set_seed(seed)
 
@@ -332,7 +335,7 @@ def main(
         metrics["_params"]["with_inversion"] = with_inversion
         metrics["_params"]["with_reconstruction"] = with_reconstruction
         metrics["_params"]["save_dir"] = save_dir
-
+        metrics["_params"]["cmd"] = cmd
         metrics["metrics"] = {}
         metrics["metrics"]["kl_div_noise_latent"] = kl_div(noise, latents)
         metrics["metrics"]["reconstruction_error_images"] = reconstruction_error(images, images2)

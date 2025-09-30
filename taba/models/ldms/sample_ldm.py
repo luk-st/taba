@@ -10,11 +10,7 @@ from diffusers.models.unets.unet_2d import UNet2DModel
 from einops import rearrange
 from tqdm import tqdm
 
-from taba.ddim.schedulers import (
-    AdvancedDDIMInverseScheduler,
-    AdvancedDDIMScheduler,
-    AdvancedDDIMSchedulerOutput,
-)
+from taba.ddim.schedulers import AdvancedDDIMInverseScheduler, AdvancedDDIMScheduler, AdvancedDDIMSchedulerOutput
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -116,8 +112,18 @@ def generate_latents(
     swap_eps: dict[int, torch.Tensor] = {},
     swap_xt: dict[int, torch.Tensor] = {},
     accelerator: Accelerator | None = None,
+    forward_before_t: int | None = None,
+    fixed_noise_generator: torch.Generator | None = None,
 ):
     assert swap_eps == {} or swap_xt == {}, "swap_eps and swap_xt cannot both be provided"
+
+    assert forward_before_t is None or forward_before_t <= len(
+        diffusion_scheduler.timesteps
+    ), "forward_before_t must be None or not greater than num_inference_steps"
+
+    assert not (
+        from_each_t is True and forward_before_t is not None
+    ), "forward_before_t must be None when from_each_t is True"
 
     n = samples.shape[0]
     all_latents = []
@@ -142,6 +148,39 @@ def generate_latents(
         # t_pred_xstart = []
         timesteps = diffusion_scheduler.timesteps
         timestep_ids = list(range(len(timesteps)))
+
+        if forward_before_t is not None and forward_before_t > 0:
+            assert isinstance(
+                diffusion_scheduler, AdvancedDDIMInverseScheduler
+            ), "scheduler must be AdvancedDDIMInverseScheduler when forward_before_t is provided"
+            assert (
+                1 <= forward_before_t <= len(timestep_ids)
+            ), "forward_before_t must be between 1 and num_inference_steps when provided"
+
+            timestep_forward = (
+                timesteps[forward_before_t]
+                if forward_before_t < len(timesteps)
+                else torch.tensor(diffusion_scheduler.config.get("num_train_timesteps") - 1).to(
+                    dtype=timesteps[0].dtype
+                )
+            )
+
+            timesteps = timesteps[forward_before_t:]
+            timestep_ids = timestep_ids[forward_before_t:]
+            fixed_noise = torch.randn(
+                latents.shape,
+                generator=fixed_noise_generator,
+                dtype=latents.dtype,
+                device=latents.device,
+            )
+            latents = diffusion_scheduler.forward_diffusion(
+                x0=latents, timestep=timestep_forward, fixed_noise=fixed_noise
+            )
+
+            if idx_start == 0:  # is first batch
+                print(
+                    f"###\nForward diffusion:\n - {len(diffusion_scheduler.timesteps)=}\n - {len(timesteps)=}\n - {(forward_before_t)=}\n - {timestep_forward=}\n - {diffusion_scheduler.timesteps=}\n###"
+                )
 
         for t_idx, t in zip(timestep_ids, timesteps):
             with torch.no_grad():

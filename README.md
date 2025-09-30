@@ -29,7 +29,7 @@ To use `ADM` models, download the following checkpoints and place them in the `r
 * ADM-64: [imagenet64_uncond_100M_1500K.pt](https://openaipublic.blob.core.windows.net/diffusion/march-2021/imagenet64_uncond_100M_1500K.pt)
 * ADM-256: [256x256_diffusion_uncond.pt](https://openaipublic.blob.core.windows.net/diffusion/jul-2021/256x256_diffusion_uncond.pt)
 
-`LDM`, `DiT`, and `Deepfloyd-IF` models are downloaded **automatically**
+`LDM`, `DiT`, `Deepfloyd-IF`, and `SDXL` models are downloaded **automatically**
 
 ## 🧪 Run experiments
 
@@ -79,6 +79,15 @@ $ accelerate launch --num_processes 1 taba/scripts/sampling/run_if_sampling.py -
 # use --input_path PATH to sample from a ready tensor of sampled Noises
 ```
 
+SDXL model:
+```sh
+$ accelerate launch --num_processes 1 taba/scripts/sdxl/sdxl_ddim_sample_inv_recon.py --seed 420 --n_noises_per_prompt 4 --n_prompts 512 --batch_size 4 --num_inference_steps 100 --guidance_scale 1.0 --cond_seed 10 --save_dir experiments/sample_invert_reconstruct/sdxl
+
+# use --with_forward to use our inversion method:
+#   use --forward_before_t to specify the number of first inversion steps to replace
+#   use --forward_seed to specify the seed for the forward diffusion
+```
+
 ### Replacing first inversion predictions with ground truth one
 Example: `5` = number of first DM predictions during inversion to replace
 
@@ -116,6 +125,19 @@ $ accelerate launch --num_processes 1 taba/scripts/invert_swap/run_if_invert_swa
 ### Invert with forward diffusion
 Example: `3` = number of first inversion steps to replace with forward diffusion
 
+
+ADM model:
+```sh
+$ accelerate launch --num_processes 1 taba/scripts/invert_forward/run_adm_invert_forward.py --model_name cifar_pixel_32 --seed 420 --batch_size 256 --num_inference_steps 100 --guidance_scale 1.0 --with_reconstruction --input_image_path experiments/sample_invert_reconstruct/adm32/samples.pt --forward_before_t 3 --forward_seed 999 --save_dir experiments/invert_forward/adm32_3
+$ accelerate launch --num_processes 1 taba/scripts/invert_forward/run_adm_invert_forward.py --model_name imagenet_pixel_64 --seed 420 --batch_size 128 --num_inference_steps 100 --guidance_scale 1.0 --with_reconstruction --input_image_path experiments/sample_invert_reconstruct/adm64/samples.pt --forward_before_t 3 --forward_seed 999 --save_dir experiments/invert_forward/adm64_3
+$ accelerate launch --num_processes 1 taba/scripts/invert_forward/run_adm_invert_forward.py --model_name imagenet_pixel_256 --seed 420 --batch_size 64 --num_inference_steps 100 --guidance_scale 1.0 --with_reconstruction --input_image_path experiments/sample_invert_reconstruct/adm256/samples.pt --forward_before_t 3 --forward_seed 999 --save_dir experiments/invert_forward/adm256_3
+
+# use --num_processes N to sample data split with N GPUs
+# use --input_image_path PATH and --input_cond_path PATH2 to make sure that inversion is done with the same conditions
+# make sure --forward_seed SEED is different from --seed
+# if needed, you can divide the dataset to multiple parts with --n_parts N and --part_idx {0, ..., N-1}
+```
+
 DiT model:
 ```sh
 $ accelerate launch --num_processes 1 taba/scripts/invert_forward/run_dit_invert_forward.py --seed 420 --batch_size 128 --num_inference_steps 100 --guidance_scale 1.0 --with_reconstruction --input_image_path experiments/sample_invert_reconstruct/dit/samples.pt --input_cond_path experiments/sample_invert_reconstruct/dit/conds.pt --forward_before_t 3 --forward_seed 999 --save_dir experiments/invert_forward/dit3
@@ -123,6 +145,17 @@ $ accelerate launch --num_processes 1 taba/scripts/invert_forward/run_dit_invert
 # use --num_processes N to sample data split with N GPUs
 # use --input_image_path PATH and --input_cond_path PATH2 to make sure that inversion is done with the same conditions
 # make sure --forward_seed SEED is different from --seed
+```
+
+LDM model:
+```sh
+$ accelerate launch --num_processes 1 taba/scripts/invert_forward/run_adm_invert_forward.py --seed 420 --batch_size 128 --num_inference_steps 100 --guidance_scale 1.0 --with_reconstruction --input_image_path experiments/sample_invert_reconstruct/ldm/samples.pt --forward_before_t 3 --forward_seed 999 --save_dir experiments/invert_forward/ldm_3
+
+# use --internal to collect intermediate steps
+# use --num_processes N to sample data split with N GPUs
+# use --input_image_path PATH and --input_cond_path PATH2 to make sure that inversion is done with the same conditions
+# make sure --forward_seed SEED is different from --seed
+# if needed, you can divide the dataset to multiple parts with --n_parts N and --part_idx {0, ..., N-1}
 ```
 
 Deepfloyd-IF model:
