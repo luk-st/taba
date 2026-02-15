@@ -175,13 +175,12 @@ This repository is based on [openai/guided-diffusion](https://github.com/openai/
 If you found our work helpful, please consider citing:
 
 ```bibtex
-@misc{staniszewski2025taba,
-      title={There and Back Again: On the relation between Noise and Image Inversions in Diffusion Models}, 
-      author={Łukasz Staniszewski and Łukasz Kuciński and Kamil Deja},
-      year={2025},
-      eprint={2410.23530},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2410.23530}, 
+@inproceedings{
+     staniszewski2026there,
+     title={There and Back Again: On the relation between Noise and Image Inversions in Diffusion Models},
+     author={{\L}ukasz Staniszewski and {\L}ukasz Kuci{\'n}ski and Kamil Deja},
+     booktitle={The Fourteenth International Conference on Learning Representations},
+     year={2026},
+     url={https://openreview.net/forum?id=8PaDdLuVKN}
 }
 ```
