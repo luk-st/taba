@@ -104,9 +104,7 @@ SDXL model:
 $ uv run accelerate launch --num_processes 1 taba/scripts/sdxl/sdxl_ddim_sample_inv_recon.py seed=88 n_noises_per_prompt=4 n_prompts=512 batch_size=4 num_inference_steps=50 guidance_scale=1.0 cond_seed=11
 
 # results are written under experiments/sdxl/ddim
-# use with_forward=true to use our inversion method:
-#   use forward_before_t=K to set the number of first inversion steps to replace with forward diffusion
-#   use forward_seed=SEED to set the seed for the forward diffusion (keep it different from seed)
+# to use our forward-diffusion inversion, see the "Invert with forward diffusion" section below
 ```
 
 ### Replacing first inversion predictions with the ground-truth one
@@ -186,6 +184,15 @@ $ uv run accelerate launch --num_processes 1 taba/scripts/invert_forward/run_if_
 # make sure forward_seed is different from seed
 ```
 
+SDXL model:
+```sh
+$ uv run accelerate launch --num_processes 1 taba/scripts/sdxl/sdxl_ddim_sample_inv_recon.py seed=88 n_noises_per_prompt=4 n_prompts=512 batch_size=4 num_inference_steps=50 guidance_scale=1.0 cond_seed=11 with_forward=true forward_before_t=3 forward_seed=999
+
+# the SDXL sample/invert/reconstruct script applies forward diffusion in-place via with_forward=true
+# use forward_before_t=K to set the number of first inversion steps to replace with forward diffusion
+# make sure forward_seed is different from seed
+```
+
 ## 🎨 Editing real images with our inversion
 
 We provide two real-image editing pipelines that plug our forward-diffusion inversion into existing attention-based editing methods. The vendored, lightly-adapted method code lives under [`taba/ext/`](taba/ext/).
@@ -222,8 +229,6 @@ $ uv run python taba/scripts/style_aligned/transfer_style.py \
 ```
 
 Set `use_forward_diffusion=false` to fall back to standard DDIM inversion. The reconstruction, styled variants, and the input image are written to `output_dir`.
-
-> Note: `taba/scripts/eval/eval_fids.py` is a standalone analysis script with hardcoded paths (edit it in place) and is not Hydra-configured.
 
 ## 💗 Acknowledgements
 This repository is based on [openai/guided-diffusion](https://github.com/openai/guided-diffusion) and [diffusers 🧨 DDIM Scheduler implementation](https://huggingface.co/docs/diffusers/api/schedulers/ddim#ddimscheduler). The real-image editing pipelines build on [MasaCtrl](https://github.com/TencentARC/MasaCtrl) and [StyleAligned](https://github.com/google/style-aligned).
