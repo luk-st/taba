@@ -1,0 +1,24 @@
+# @package _global_
+# Config for taba/scripts/sdxl/sdxl_ddim_sample_inv_recon.py
+# Forward-diffusion inversion (our method): set with_forward=true and forward_before_t=K
+#   e.g. accelerate launch taba/scripts/sdxl/sdxl_ddim_sample_inv_recon.py with_forward=true forward_before_t=2 forward_seed=113
+defaults:
+  - _self_
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+  job:
+    chdir: false
+
+n_prompts: 512
+n_noises_per_prompt: 4
+cond_seed: 11
+seed: 88
+with_forward: false
+forward_before_t: 2
+forward_seed: 113
+batch_size: 4
+num_inference_steps: 50
+guidance_scale: 1.0

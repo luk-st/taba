@@ -1,0 +1,25 @@
+# @package _global_
+# Config for taba/scripts/sampling/run_if_sampling.py
+defaults:
+  - _self_
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+  job:
+    chdir: false
+
+seed: 42
+noises_per_prompt: 4
+n_prompts: 128
+batch_size: 16
+num_inference_steps: 50
+guidance_scale: 1.0
+input_path: null
+cond_seed: 10
+internal: false
+with_inversion: false
+with_reconstruction: false
+prompts_dataset: dataset
+save_dir: null

@@ -1,0 +1,23 @@
+# @package _global_
+# Config for taba/scripts/sampling/run_ldm_sampling.py
+defaults:
+  - _self_
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+  job:
+    chdir: false
+
+num_inference_steps: 100
+input_noise_path: null
+with_inversion: false
+with_reconstruction: false
+seed: 42
+batch_size: 64
+n_samples: 1024
+internal: false
+n_parts: 1
+part_idx: 0
+save_dir: null

@@ -1,0 +1,14 @@
+# @package _global_
+# Config for taba/scripts/diversity/different_cond/calc_diversity_two_samples.py
+defaults:
+  - _self_
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+  job:
+    chdir: false
+
+in_dir: null
+ref_dir: null

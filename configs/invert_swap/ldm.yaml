@@ -1,0 +1,24 @@
+# @package _global_
+# Config for taba/scripts/invert_swap/run_ldm_invert_swap.py
+defaults:
+  - _self_
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+  job:
+    chdir: false
+
+num_inference_steps: 100
+input_image_path: null
+with_reconstruction: false
+seed: 42
+batch_size: 64
+internal: false
+swap_path: null
+swap_before_t: null
+swap_type: null
+n_parts: 1
+part_idx: 0
+save_dir: null

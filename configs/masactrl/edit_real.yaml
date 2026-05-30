@@ -1,0 +1,24 @@
+# @package _global_
+# Config for taba/scripts/masactrl/run_masactrl_edit_real.py
+defaults:
+  - _self_
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+  job:
+    chdir: false
+
+image_path: null
+source_prompt: ""
+target_prompt: "a photo of a red car"
+num_inference_steps: 50
+guidance_scale: 7.5
+forward_t: 2
+forward_seed: 2115
+masactrl_step: 4
+masactrl_layer: 10
+model_path: "CompVis/stable-diffusion-v1-4"
+output_dir: experiments/masactrl/edit_real
+seed: 42

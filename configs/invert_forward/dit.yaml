@@ -1,0 +1,26 @@
+# @package _global_
+# Config for taba/scripts/invert_forward/run_dit_invert_forward.py
+defaults:
+  - _self_
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+  job:
+    chdir: false
+
+num_inference_steps: 50
+input_image_path: null
+input_cond_path: null
+with_reconstruction: false
+seed: 42
+batch_size: 64
+internal: false
+swap_path: null
+swap_before_t: null
+swap_type: null
+guidance_scale: 1.0
+forward_before_t: null
+forward_seed: 42
+save_dir: null
