@@ -19,5 +19,6 @@ datasets/*/**
 venv/
 .venv/
 outputs/
+results/
 *.log
 .python-version-local

@@ -21,4 +21,4 @@ forward_seed: 113
 batch_size: 4
 num_inference_steps: 50
 guidance_scale: 1.0
-latents_path: experiments/sdxl/ddim
+latents_path: experiments/sdxl/ddim/latents.pt

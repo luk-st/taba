@@ -119,6 +119,8 @@ class CustomStableDiffusionXLPipeline(StableDiffusionXLPipeline):
         tokenizer_2: CLIPTokenizer,
         unet: UNet2DConditionModel,
         scheduler: KarrasDiffusionSchedulers,
+        image_encoder=None,
+        feature_extractor=None,
         force_zeros_for_empty_prompt: bool = True,
         add_watermarker: Optional[bool] = None,
     ):
@@ -130,6 +132,8 @@ class CustomStableDiffusionXLPipeline(StableDiffusionXLPipeline):
             tokenizer_2=tokenizer_2,
             unet=unet,
             scheduler=scheduler,
+            image_encoder=image_encoder,
+            feature_extractor=feature_extractor,
             force_zeros_for_empty_prompt=force_zeros_for_empty_prompt,
             add_watermarker=add_watermarker,
         )

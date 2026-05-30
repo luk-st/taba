@@ -229,7 +229,7 @@ def main(
         metrics["metrics"]["latent_stats"] = stats_from_tensor(inversion_outputs["latents"])
         if with_reconstruction:
             metrics["metrics"]["reconstruction_error_images"] = reconstruction_error(
-                reconstruction_outputs["samples2_decoded"], inversion_outputs["samples_decoded"]
+                reconstruction_outputs["samples2"], image
             )
         logging.info(metrics)
 
