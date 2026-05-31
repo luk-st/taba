@@ -116,10 +116,10 @@ def main(
     out_dir = Path(output_dir)
 
     # source_image is in [-1, 1]; the model outputs are already in [0, 1].
-    save_image(source_image * 0.5 + 0.5, out_dir / "input.png")
-    save_image(image_fixed, out_dir / "reconstruction.png")
-    save_image(image_masactrl[0:1], out_dir / "source.png")
-    save_image(image_masactrl[-1:], out_dir / "edited.png")
+    save_image(source_image * 0.5 + 0.5, out_dir / "input.png")  # the input image
+    save_image(image_masactrl[0:1], out_dir / "reconstruction.png")  # source prompt + MasaCtrl: reconstruction of input
+    save_image(image_fixed, out_dir / "edit_without_masactrl.png")  # target prompt, no control: baseline edit
+    save_image(image_masactrl[-1:], out_dir / "edited.png")  # target prompt + MasaCtrl: the edit
 
     out_grid = torch.cat(
         [
