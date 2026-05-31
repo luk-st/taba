@@ -8,7 +8,6 @@ import torchvision.transforms as T
 from diffusers import DDIMScheduler
 from omegaconf import DictConfig, OmegaConf
 from PIL import Image
-from torchvision.io import read_image
 from torchvision.utils import save_image
 
 from taba._hydra import CONFIG_DIR
@@ -26,25 +25,19 @@ logger = logging.getLogger(__name__)
 def load_image(image, device):
     """Load a real image as a [-1, 1] tensor of shape (1, 3, 512, 512)."""
     if isinstance(image, str):
-        image = read_image(image).float() / 127.5 - 1.0  # [-1, 1], shape (3, H, W)
-        original_size = image.shape[1:]
-    elif isinstance(image, Image.Image):
-        original_size = image.size
-        transform = T.Compose(
-            [
-                T.Resize((512, 512), interpolation=Image.BICUBIC),
-                T.ToTensor(),  # scales to [0, 1]
-                T.Lambda(lambda x: x[:3]),  # drop extra channels if any
-                T.Lambda(lambda x: x * 2 - 1),  # [0,1] -> [-1,1]
-            ]
-        )
-        image = transform(image)
-    else:
+        image = Image.open(image)
+    if not isinstance(image, Image.Image):
         raise ValueError("input must be a file path or PIL.Image.Image")
-
-    if image.dim() == 3:
-        image = image.unsqueeze(0)  # (1, 3, H, W)
-    image = image.to(device)
+    original_size = image.size
+    transform = T.Compose(
+        [
+            T.Lambda(lambda im: im.convert("RGB")),  # drop alpha / ensure 3 channels
+            T.Resize((512, 512), interpolation=Image.BICUBIC),
+            T.ToTensor(),  # scales to [0, 1]
+            T.Lambda(lambda x: x * 2 - 1),  # [0, 1] -> [-1, 1]
+        ]
+    )
+    image = transform(image).unsqueeze(0).to(device)  # (1, 3, 512, 512)
     return image, original_size
 
 
@@ -54,6 +47,7 @@ def main(
     target_prompt: str,
     num_inference_steps: int,
     guidance_scale: float,
+    inv_guidance_scale: float,
     forward_t: int,
     forward_seed: int,
     masactrl_step: int,
@@ -89,7 +83,7 @@ def main(
     start_code, latents_list = model.invert(
         source_image,
         source_prompt,
-        guidance_scale=guidance_scale,
+        guidance_scale=inv_guidance_scale,
         num_inference_steps=num_inference_steps,
         return_intermediates=True,
         with_forward=True,

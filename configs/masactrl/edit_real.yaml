@@ -15,6 +15,7 @@ source_prompt: ""
 target_prompt: "a photo of a red car"
 num_inference_steps: 50
 guidance_scale: 7.5
+inv_guidance_scale: 1.0
 forward_t: 2
 forward_seed: 2115
 masactrl_step: 4
