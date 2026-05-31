@@ -6,6 +6,7 @@ import hydra
 import torch
 import torchvision.transforms as T
 from diffusers import DDIMScheduler
+from diffusers.utils import load_image as hf_load_image
 from omegaconf import DictConfig, OmegaConf
 from PIL import Image
 from torchvision.utils import save_image
@@ -25,7 +26,7 @@ logger = logging.getLogger(__name__)
 def load_image(image, device):
     """Load a real image as a [-1, 1] tensor of shape (1, 3, 512, 512)."""
     if isinstance(image, str):
-        image = Image.open(image)
+        image = hf_load_image(image)  # supports local paths and URLs
     if not isinstance(image, Image.Image):
         raise ValueError("input must be a file path or PIL.Image.Image")
     original_size = image.size
