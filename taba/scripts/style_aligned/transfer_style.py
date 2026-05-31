@@ -1,5 +1,4 @@
 import logging
-import shutil
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -159,8 +158,8 @@ def main(
     # save styled outputs
     for idx_image, image in enumerate(transfered_images):
         image.save((output_path / f"image_{idx_image}.png").resolve())
-    # save input image
-    shutil.copy(image_path, output_path / "input.png")
+    # save input image (load_image handles both local paths and URLs)
+    load_image(image_path).save((output_path / "input.png").resolve())
     logging.info(f"Saved {len(transfered_images)} styled images + reconstruction + input to {output_path}")
 
 
