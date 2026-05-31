@@ -219,16 +219,10 @@ $ uv run python taba/scripts/masactrl/run_masactrl_edit_real.py \
 Transfer the style of a user image to one or more target prompts by combining [StyleAligned](https://github.com/google/style-aligned) shared attention with our inversion:
 
 ```sh
-$ uv run python taba/scripts/style_aligned/transfer_style.py \
-    image_path=/path/to/photo.jpg \
-    p_source="a photo of a house" \
-    'ps_target=["a house in the style of van gogh","a house as a watercolor painting"]' \
-    num_inference_steps=50 guidance_scale_inv=2.0 gs_sampling=12.0 \
-    forward_t=3 forward_seed=2115 offset_inv=3 use_forward_diffusion=true \
-    output_dir=results/style_aligned/demo
+$ uv run python taba/scripts/style_aligned/transfer_style.py image_path=https://luk-st.github.io/img_ls.png p_source="a photo of a man in photography style" 'ps_target=["a photo of penguin in photography style"]' use_forward_diffusion=true forward_t=2 forward_seed=999 num_inference_steps=100 output_dir=results/style_transfer_demo/penguin
 ```
 
-Set `use_forward_diffusion=false` to fall back to standard DDIM inversion. The reconstruction, styled variants, and the input image are written to `output_dir`.
+`image_path` can be a local path or a URL. Pass several target prompts via `'ps_target=["...","..."]'`. Set `use_forward_diffusion=false` to fall back to standard DDIM inversion. The reconstruction, styled variants, and the input image are written to `output_dir`.
 
 ## 💗 Acknowledgements
 This repository is based on [openai/guided-diffusion](https://github.com/openai/guided-diffusion) and [diffusers 🧨 DDIM Scheduler implementation](https://huggingface.co/docs/diffusers/api/schedulers/ddim#ddimscheduler). The real-image editing pipelines build on [MasaCtrl](https://github.com/TencentARC/MasaCtrl) and [StyleAligned](https://github.com/google/style-aligned).
