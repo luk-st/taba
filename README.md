@@ -1,9 +1,6 @@
 <h1 align="center">
      There and Back Again: On the relation between Noise and Image Inversions in Diffusion Models
 </h1>
-<h4 align="center">
-Łukasz Staniszewski, Łukasz Kuciński, Kamil Deja
-</h4>
 <p align="center">
   <a href="https://arxiv.org/abs/2410.23530"><img src="https://img.shields.io/badge/arXiv-2410.23530-b31b1b.svg"></a>
 </p>
@@ -25,7 +22,7 @@ This project uses [`uv`](https://docs.astral.sh/uv/) for environment and depende
 uv sync
 ```
 
-This creates a `.venv/` with the exact, locked dependencies from `uv.lock` (Python 3.10, CUDA 12.1 PyTorch wheels) and installs the `taba` package in editable mode. Prefix commands with `uv run` (e.g. `uv run accelerate launch ...`) or activate the environment with `source .venv/bin/activate`.
+This creates a `.venv/` env (Python 3.10, CUDA 12.1 PyTorch wheels).
 
 To also install the optional notebook dependencies:
 
@@ -44,13 +41,13 @@ To use `ADM` models, download the following checkpoints and place them in the `r
 
 ## 🛠️ Configuration (Hydra)
 
-Every experiment script is configured with [Hydra](https://hydra.cc/). Default configs live in [`configs/`](configs/), mirroring the script layout (e.g. `configs/sampling/dit.yaml` configures `taba/scripts/sampling/run_dit_sampling.py`). Any field can be overridden on the command line with `key=value` syntax, for example:
+Every experiment script is configured with [Hydra](https://hydra.cc/). Default configs live in [`configs/`](configs/). Any field can be overridden on the command line with `key=value` syntax, for example:
 
 ```sh
 uv run accelerate launch taba/scripts/sampling/run_dit_sampling.py n_prompts=1280 with_inversion=true with_reconstruction=true
 ```
 
-Boolean flags are set with `key=true` / `key=false`, paths default to `null`, and lists use `'key=[a,b]'`. To see the fully resolved config for a script without running it, append `--cfg job`.
+Boolean flags are set with `key=true` / `key=false`, paths default to `null`, and lists use `'key=[a,b]'`.
 
 ## 🧪 Run experiments
 
@@ -195,11 +192,11 @@ $ uv run accelerate launch --num_processes 1 taba/scripts/sdxl/sdxl_ddim_sample_
 
 ## 🎨 Editing real images with our inversion
 
-We provide two real-image editing pipelines that plug our forward-diffusion inversion into existing attention-based editing methods. The vendored, lightly-adapted method code lives under [`taba/ext/`](taba/ext/).
+We provide two real-image editing pipelines that plug our forward-diffusion inversion into existing attention-based editing methods.
 
 ### MasaCtrl + forward diffusion (SD1.5)
 
-Edit a single user image by combining [MasaCtrl](https://github.com/TencentARC/MasaCtrl) mutual self-attention control with our inversion:
+Edit a single user image by combining [MasaCtrl](https://github.com/TencentARC/MasaCtrl) with our inversion:
 
 ```sh
 $ uv run python taba/scripts/masactrl/run_masactrl_edit_real.py \
@@ -212,17 +209,17 @@ $ uv run python taba/scripts/masactrl/run_masactrl_edit_real.py \
     output_dir=experiments/masactrl/edit_real
 ```
 
-`forward_t` is the number of first inversion steps replaced with forward diffusion (set `forward_t=0` to fall back to standard DDIM inversion). Outputs (`input.png`, `reconstruction.png`, `source.png`, `edited.png`, and a `grid.png`) are written to `output_dir`.
+`forward_t` is the number of first inversion steps replaced with forward diffusion (set `forward_t=0` to fall back to standard DDIM inversion). Outputs are written to `output_dir`.
 
 ### StyleAligned + forward diffusion (SDXL)
 
-Transfer the style of a user image to one or more target prompts by combining [StyleAligned](https://github.com/google/style-aligned) shared attention with our inversion:
+Transfer the style of a user image to one or more target prompts by combining [StyleAligned](https://github.com/google/style-aligned) with our inversion:
 
 ```sh
 $ uv run python taba/scripts/style_aligned/transfer_style.py image_path=https://luk-st.github.io/img_ls.png p_source="a photo of a man in photography style" 'ps_target=["a photo of penguin in photography style"]' use_forward_diffusion=true forward_t=2 forward_seed=999 num_inference_steps=100 output_dir=results/style_transfer_demo/penguin
 ```
 
-`image_path` can be a local path or a URL. Pass several target prompts via `'ps_target=["...","..."]'`. Set `use_forward_diffusion=false` to fall back to standard DDIM inversion. The reconstruction, styled variants, and the input image are written to `output_dir`.
+`image_path` can be a local path or a URL. Pass several target prompts via `'ps_target=["...","..."]'`. Set `use_forward_diffusion=false` to fall back to standard DDIM inversion.
 
 ## 💗 Acknowledgements
 This repository is based on [openai/guided-diffusion](https://github.com/openai/guided-diffusion) and [diffusers 🧨 DDIM Scheduler implementation](https://huggingface.co/docs/diffusers/api/schedulers/ddim#ddimscheduler). The real-image editing pipelines build on [MasaCtrl](https://github.com/TencentARC/MasaCtrl) and [StyleAligned](https://github.com/google/style-aligned).
