@@ -17,3 +17,8 @@ datasets/*/**
 *.egg-info
 .cpu_venv/
 venv/
+.venv/
+outputs/
+results/
+*.log
+.python-version-local

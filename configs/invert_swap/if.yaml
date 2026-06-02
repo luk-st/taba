@@ -1,0 +1,24 @@
+# @package _global_
+# Config for taba/scripts/invert_swap/run_if_invert_swap.py
+defaults:
+  - _self_
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+  job:
+    chdir: false
+
+seed: 42
+batch_size: 16
+num_inference_steps: 50
+guidance_scale: 1.0
+input_samples_path: null
+input_prompts_path: null
+internal: false
+with_reconstruction: false
+swap_path: null
+swap_before_t: null
+swap_type: null
+save_dir: null

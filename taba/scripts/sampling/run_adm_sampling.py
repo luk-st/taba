@@ -1,4 +1,3 @@
-import argparse
 import json
 import logging
 import os
@@ -9,11 +8,14 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Dict
 
+import hydra
 import torch
 from accelerate import Accelerator
 from accelerate.utils import InitProcessGroupKwargs, gather_object
 from diffusers.training_utils import set_seed
+from omegaconf import DictConfig, OmegaConf
 
+from taba._hydra import CONFIG_DIR
 from taba.metrics.angles_distances import reconstruction_error
 from taba.metrics.correlation import get_top_k_corr_in_patches
 from taba.metrics.normality import kl_div, stats_from_tensor
@@ -285,34 +287,11 @@ def main(
             json.dump(metrics, f)
 
 
+@hydra.main(version_base=None, config_path=CONFIG_DIR, config_name="sampling/adm")
+def cli(cfg: DictConfig) -> None:
+    logger.info("Resolved config:\n%s", OmegaConf.to_yaml(cfg))
+    main(**cfg)
+
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--model_name", type=str, required=True, choices=ADM_INIT_FUNCTIONS.keys())
-    parser.add_argument("--num_inference_steps", type=int, default=NUM_INFERENCE_STEPS_DEFAULT)
-    parser.add_argument("--input_noise_path", type=str, default=None)
-    parser.add_argument("--input_image_path", type=str, default=None)
-    parser.add_argument("--with_inversion", action="store_true")
-    parser.add_argument("--with_reconstruction", action="store_true")
-    parser.add_argument("--seed", type=int, default=SEED)
-    parser.add_argument("--batch_size", type=int, default=BATCH_SIZE_DEFAULT)
-    parser.add_argument("--n_samples", type=int, default=N_SAMPLES_DEFAULT)
-    parser.add_argument("--internal", action="store_true")
-    parser.add_argument("--n_parts", type=int, default=1)
-    parser.add_argument("--part_idx", type=int, default=0)
-    parser.add_argument("--save_dir", type=str, default=None)
-    args = parser.parse_args()
-    main(
-        model_name=args.model_name,
-        num_inference_steps=args.num_inference_steps,
-        input_noise_path=args.input_noise_path,
-        input_image_path=args.input_image_path,
-        with_inversion=args.with_inversion,
-        with_reconstruction=args.with_reconstruction,
-        seed=args.seed,
-        batch_size=args.batch_size,
-        n_samples=args.n_samples,
-        internal=args.internal,
-        n_parts=args.n_parts,
-        part_idx=args.part_idx,
-        save_dir=args.save_dir,
-    )
+    cli()

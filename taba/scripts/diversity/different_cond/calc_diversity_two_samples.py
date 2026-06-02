@@ -1,13 +1,15 @@
-import argparse
 import json
 import os
 from pathlib import Path
 from typing import Any
 
+import hydra
 import numpy as np
 import torch
 from diffusers.utils import pt_to_pil
+from omegaconf import DictConfig, OmegaConf
 
+from taba._hydra import CONFIG_DIR
 from taba.metrics.alignment import calculate_psnr, calculate_ssim
 from taba.metrics.clip_dino import get_dino, get_dino_features, get_mean_cosine_sim
 from taba.metrics.diversity import (
@@ -94,9 +96,10 @@ def main(in_dir: str, ref_dir: str):
         json.dump(output, f)
 
 
+@hydra.main(version_base=None, config_path=CONFIG_DIR, config_name="diversity/calc_diversity_two_samples")
+def cli(cfg: DictConfig) -> None:
+    main(**cfg)
+
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--in_dir", type=str, required=True)
-    parser.add_argument("--ref_dir", type=str, required=True)
-    args = parser.parse_args()
-    main(args.in_dir, args.ref_dir)
+    cli()

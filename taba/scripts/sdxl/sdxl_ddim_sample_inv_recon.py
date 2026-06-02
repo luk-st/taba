@@ -11,9 +11,11 @@ from accelerate import Accelerator
 from accelerate.utils import InitProcessGroupKwargs, gather_object
 from diffusers.utils.logging import disable_progress_bar, enable_progress_bar
 from diffusers.utils.torch_utils import randn_tensor
-from fire import Fire
+import hydra
+from omegaconf import DictConfig, OmegaConf
 from tqdm import tqdm
 
+from taba._hydra import CONFIG_DIR
 from taba.ddim.schedulers import AdvancedDDIMInverseScheduler, AdvancedDDIMScheduler
 from taba.models.sdxl.sdxl_pipeline import CustomStableDiffusionXLImg2ImgPipeline
 
@@ -283,5 +285,11 @@ def main(
     )
 
 
+@hydra.main(version_base=None, config_path=CONFIG_DIR, config_name="sdxl/sample_inv_recon")
+def cli(cfg: DictConfig) -> None:
+    logger.info("Resolved config:\n%s", OmegaConf.to_yaml(cfg))
+    main(**cfg)
+
+
 if __name__ == "__main__":
-    Fire(main)
+    cli()

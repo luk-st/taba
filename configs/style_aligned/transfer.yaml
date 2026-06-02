@@ -1,0 +1,30 @@
+# @package _global_
+# Config for taba/scripts/style_aligned/transfer_style.py
+# Override any field on the command line, e.g.
+#   python taba/scripts/style_aligned/transfer_style.py image_path=/path/to/img.png forward_t=3
+defaults:
+  - _self_
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+  job:
+    chdir: false
+
+image_path: null
+p_source: ""
+ps_target:
+  - "a painting in the style of the source image"
+  - "a sculpture in the style of the source image"
+num_inference_steps: 50
+guidance_scale_inv: 2.0
+forward_t: 3
+forward_seed: 2115
+offset_inv: 3
+gs_sampling: 12.0
+batch_size: 3
+shared_score_shift: 2
+use_forward_diffusion: true
+output_dir: null
+seed: 10

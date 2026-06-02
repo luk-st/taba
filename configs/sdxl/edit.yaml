@@ -1,0 +1,24 @@
+# @package _global_
+# Config for taba/scripts/sdxl/sdxl_ddim_edit.py
+# latents_path points to the inverted latents produced by sdxl_ddim_sample_inv_recon.py.
+defaults:
+  - _self_
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+  job:
+    chdir: false
+
+n_prompts: 512
+n_noises_per_prompt: 4
+cond_seed: 2115
+seed: 88
+with_forward: false
+forward_before_t: 2
+forward_seed: 113
+batch_size: 4
+num_inference_steps: 50
+guidance_scale: 1.0
+latents_path: experiments/sdxl/ddim/latents.pt

@@ -1,6 +1,81 @@
+[project]
+name = "taba"
+version = "0.1.0"
+description = "There and Back Again: On the relation between Noise and Image Inversions in Diffusion Models"
+readme = "README.md"
+requires-python = ">=3.10,<3.11"
+license = { text = "MIT" }
+dependencies = [
+    "accelerate==1.1.1",
+    "blobfile>=2.1.1",
+    "clean-fid==0.1.35",
+    "datasets==3.3.0",
+    "diffusers==0.30.3",
+    "dreamsim==0.2.1",
+    "einops==0.8.0",
+    "fire==0.6.0",
+    "gdown==5.2.0",
+    "huggingface-hub==0.24.5",
+    "hydra-core==1.3.2",
+    "lpips==0.1.4",
+    "matplotlib==3.9.2",
+    "numpy==2.0.1",
+    "opencv-python==4.10.0.84",
+    "pandas==2.2.2",
+    "pillow==10.4.0",
+    "safetensors==0.4.3",
+    "scikit-image==0.24.0",
+    "scikit-learn==1.5.2",
+    "scipy==1.14.0",
+    "seaborn==0.13.2",
+    "sentencepiece==0.2.0",
+    "statsmodels==0.14.4",
+    "torch==2.4.0",
+    "torchvision==0.19.0",
+    "tqdm==4.66.4",
+    "transformers==4.43.3",
+    "wandb==0.17.5",
+    "clip",
+    "torch-fidelity",
+]
+
+[project.optional-dependencies]
+notebooks = [
+    "ipykernel==6.29.5",
+    "ipython==8.26.0",
+    "jupyter==1.0.0",
+    "torchinfo==1.8.0",
+]
+
+[tool.uv]
+# This project targets Linux GPU clusters; restrict resolution to Linux so the
+# lockfile is not constrained by macOS-only wheels (e.g. torchvision pinning numpy<2).
+environments = ["sys_platform == 'linux' and platform_machine == 'x86_64'"]
+
+# torch/torchvision come from the PyTorch CUDA 12.1 index (the cu121 wheels leave
+# numpy unpinned, unlike the generic PyPI wheels which pin numpy<2).
+[[tool.uv.index]]
+name = "pytorch-cu121"
+url = "https://download.pytorch.org/whl/cu121"
+explicit = true
+
+# OpenAI CLIP and toshas/torch-fidelity are only distributed via git.
+[tool.uv.sources]
+torch = { index = "pytorch-cu121" }
+torchvision = { index = "pytorch-cu121" }
+clip = { git = "https://github.com/openai/CLIP.git" }
+torch-fidelity = { git = "https://github.com/toshas/torch-fidelity.git", branch = "master" }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["taba", "guided_diffusion"]
+
 [tool.black]
 line-length = 119
-target-version = ['py39']
+target-version = ['py310']
 
 [tool.isort]
 line_length = 119
